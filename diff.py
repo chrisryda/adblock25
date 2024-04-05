@@ -1,25 +1,13 @@
 
 def same(x, y, delta): 
+    with open(y, "rb") as two: 
+        other = two.read()
     with open(x, "rb") as one: 
-        with open(y, "rb") as two:
-            chunk = other = True 
-            while chunk or other: 
-                chunk = one.read(delta)
-                other = two.read(delta)
-                if chunk != other:
-                    print("Diff")
-                    flag = 1
-                    while flag != 0:
-                        chunk += one.read(delta)
-                        other += two.read(delta)
-                        idx = chunk.find(other[-1000:])
-                        if idx == -1:
-                            continue
-                        else:
-                            flag = 0
-                            chunk = chunk[idx:]
-                            # other = other[-1000:]
-                out.write(chunk)       
+            chunk = one.read(delta)
+            while chunk:
+                if other.find(chunk) != -1:
+                    out.write(chunk)
+                chunk = one.read(delta)       
             
 # with open("out.mp3", "wb") as out:
 #     same("/home/crd/Downloads/TheInfiniteMonkeyCage-20091130-ScienceAndComedians.mp3",
