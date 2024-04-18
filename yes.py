@@ -10,10 +10,9 @@ class Proxy:
         self.buffer_size = 4096
 
     def run(self):
-        self.proxy.bind(("0.0.0.0", self.port))
+        self.proxy.bind(("192.168.240.1", self.port))
         self.proxy.listen(100)
         print("  * Proxy server is running on port {}".format(self.port))
-
         while True:
             client, addr = self.proxy.accept()
             print("\nRequest recieved => {}:{}".format(addr[0], addr[1]))
@@ -22,11 +21,19 @@ class Proxy:
     def handle_request(self, client):
         req = client.recv(self.buffer_size)
         head = self.parse_head(req)
-        # print(head)
+        print(head)
         port = 80
+        try:
+            tmp = head["meta"].split(" ")[1].split("://")[1].split("/")[0]
+        except IndexError:
+            client.close()
+            return
+        if tmp.find(":") > -1:
+            port = int(tmp.split(":")[1])
         response = self.send_to_server(head["headers"]["host"], port, req)
+
         client.sendall(response)
-        print(response)
+        print("Response sent")
         client.close()
 
     def send_to_server(self, host, port, data):
@@ -36,13 +43,14 @@ class Proxy:
         res = server.recv(self.buffer_size)
         head = self.parse_head(res)
         headers = head["headers"]
+        
         if "content-length" in headers:
-            prev = b""
-            while len(res) != len(prev):
-                prev = res
+            n = int(headers["content-length"]) / self.buffer_size
+            for i in range(int(n)+1):
                 res += server.recv(self.buffer_size)
+                print(i)
 
-        print(f"\nResonse len {len(res)}")
+        print("Response finished")
         server.close()
         return res
 
