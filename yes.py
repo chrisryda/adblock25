@@ -23,32 +23,70 @@ class Proxy:
         head = self.parse_head(req)
         print(head)
         port = 80
-        try:
-            tmp = head["meta"].split(" ")[1].split("://")[1].split("/")[0]
-        except IndexError:
+        # try:
+        #     tmp = head["meta"].split(" ")[1].split("://")[1].split("/")[0]
+        # except IndexError:
+        #     client.close()
+        #     return
+        # if tmp.find(":") > -1:
+        #     port = int(tmp.split(":")[1])
+        
+        if head["method"] == "CONNECT":
+            print("Tunnel go")
+            tunnel = self.do_tunneling(head["headers"]["host"], 443, req)
+            client.sendall(tunnel)
+            print("Response sent")
             client.close()
-            return
-        if tmp.find(":") > -1:
-            port = int(tmp.split(":")[1])
-        response = self.send_to_server(head["headers"]["host"], port, req)
-
-        client.sendall(response)
-        print("Response sent")
-        client.close()
+        else:
+            response = self.send_to_server(head["headers"]["host"], port, req)
+            client.sendall(response)
+            print("Response sent")
+            client.close()
 
     def send_to_server(self, host, port, data):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.connect((socket.gethostbyname(host), port))
+        server.connect((socket.gethostbyname(host.split(":")[0]), port))
         server.sendall(data)
         res = server.recv(self.buffer_size)
         head = self.parse_head(res)
         headers = head["headers"]
         
         if "content-length" in headers:
-            n = int(headers["content-length"]) / self.buffer_size
-            for i in range(int(n)+1):
-                res += server.recv(self.buffer_size)
-                print(i)
+            n = (int(headers["content-length"]) / self.buffer_size)
+            if n > 1: 
+                for i in range(int(n)+1):
+                    res += server.recv(self.buffer_size)
+                    print(i)
+
+        print("Response finished")
+        server.close()
+        return res
+
+    def do_tunneling(self, host, port, data):
+        print("Trying")
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.connect((socket.gethostbyname(host.split(":")[0]), port))
+        try:
+            # If successful, send 200 code response
+            reply = "HTTP/1.0 200 Connection established\r\n"
+            reply += "Proxy-agent: Your mom\r\n"
+            reply += "\r\n"
+            print(reply)
+            server.sendall(reply.encode())
+        except socket.error as err:
+            # If the connection could not be established, exit
+            # Should properly handle the exit with http error code here
+            print(err)
+        res = server.recv(self.buffer_size)
+        head = self.parse_head(res)
+        headers = head["headers"]
+        
+        if "content-length" in headers:
+            n = (int(headers["content-length"]) / self.buffer_size)
+            if n > 1: 
+                for i in range(int(n)+1):
+                    res += server.recv(self.buffer_size)
+                    print(i)
 
         print("Response finished")
         server.close()
