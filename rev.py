@@ -42,12 +42,36 @@ class Proxy:
     def handle_request(self, client, req, head):
         port = 80
         print("Handling req")
-        response = self.send_to_server(head["headers"]["host"], port, req)
-        client.sendall(response)
-        print("Response sent")
-        client.close()
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.connect((socket.gethostbyname(head["headers"]["host"].split(":")[0]), port))
+        server.sendall(req)
+        print("Waiting for response...")
+        res = server.recv(self.buffer_size)
+        client.sendall(res)
+        print(f"Response recieved")
+        head = self.parse_head(res)
+        headers = head["headers"]
+        server.setblocking(0)
+        client.setblocking(0)
+        while True:
+            try:
+                request = server.recv(self.buffer_size)
+                # print(f"Request:\n{request}")
+                client.sendall( request )
+            except socket.error as err:
+                # print(err)
+                pass
+            try:
+                reply = client.recv(self.buffer_size)
+                # print(f"Reply:\n{reply}")
+                server.sendall( reply )
+            except socket.error as err:
+                # print(err)
+                pass
+            except KeyboardInterrupt:
+                return
 
-    def send_to_server(self, host, port, data):
+    #def send_to_server(self, host, port, data):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.connect((socket.gethostbyname(host.split(":")[0]), port))
         server.sendall(data)
@@ -101,7 +125,7 @@ class Proxy:
                     # print(err)
                     pass
                 except KeyboardInterrupt:
-                    return
+                        return
 
     # def recvall(self, c, n):
     #     data = b''
