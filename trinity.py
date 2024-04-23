@@ -1,14 +1,14 @@
 import socket
 import sys
-from threading import Thread, main_thread
+from threading import Thread
 
 class Proxy:
     def __init__(self, port=3000):
         self.port = port
         self.proxy = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # self.proxy.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.proxy.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-        self.buffer_size = 4096
+        self.proxy.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # self.proxy.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        self.buffer_size = 2048
 
     def run(self):
         # ip = input("Enter IP-address of the Waydroid-instance: ")
@@ -24,47 +24,45 @@ class Proxy:
                 
                 print(f"\nRequest recieved => {addr[0]}:{addr[1]}")
                 print(head)
-                workers = []
                 if head["method"] == "CONNECT":
                     t = Thread(target=self.serve_tunnel, args=(client, head), daemon=True)
                     t.start()
-                    workers.append(t)
                 else:
                     t = Thread(target=self.handle_request, args=(client, req, head), daemon=True)
                     t.start()
-                    workers.append(t)
             except KeyboardInterrupt:
                 print("\n\nCtrl+C pressed, exiting...")
-                for t in workers:
-                    t.join()
                 sys.exit(0)
 
     def handle_request(self, client, req, head):
         port = 80
         print("Handling req")
-        response = self.send_to_server(head["headers"]["host"], port, req)
-        client.sendall(response)
+        response = self.send_to_server(head["headers"]["host"], port, req, client)
+        client.sendall(response) # Comment out
         print("Response sent")
         client.close()
 
-    def send_to_server(self, host, port, data):
+    def send_to_server(self, host, port, data, client):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.connect((socket.gethostbyname(host.split(":")[0]), port))
         server.sendall(data)
-        print("Waiting for response...")
+        
+        print("Waiting for response...", end=" ")
         res = server.recv(self.buffer_size)
+        # client.sendall(res)
         print(f"Response recieved")
         head = self.parse_head(res)
         headers = head["headers"]
-        
-        if "content-length" in headers and int(headers["content-length"]) > self.buffer_size:
-            n = (int(headers["content-length"]) / self.buffer_size)
-            if n > 2: 
-                res += server.recv(int(headers["content-length"]))
-                print("Gathering data")
-            res += server.recv(int(self.buffer_size*(n - int(n)))+1)
-        
-        # print(res)
+        print(res)
+        data = head["chunk"]
+        n = int(headers["content-length"]) - len(data)
+        while n > 0:
+            # print(f"Waiting for {n} bytes")
+            s = server.recv(n)
+            if not s: break
+            # client.sendall(s)
+            res += s
+            n -= len(s)   
         server.close()
         return res
 
@@ -76,11 +74,8 @@ class Proxy:
         if head["method"] == "CONNECT":
             try:
                 reply = "HTTP/1.0 200 HTTP/1.0 200 Connection established\r\n\r\n"
-                # print(reply)
                 client.sendall(reply.encode())
             except socket.error as err:
-                # If the connection could not be established, exit
-                # Should properly handle the exit with http error code here
                 print(err)  
             server.setblocking(0)
             client.setblocking(0)
@@ -109,7 +104,7 @@ class Proxy:
     #         s = c.recv(n)
     #         if not s: raise EOFError
     #         data += s
-    #         n -= len(s)
+    #         n -= len(s)   
     #     return data
     
     def parse_head(self, head_request):
