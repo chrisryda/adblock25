@@ -1,4 +1,5 @@
 from threading import Thread
+import requests
 import socket
 import sys
 
@@ -32,9 +33,10 @@ class Proxy:
 
     def handle_request(self, client : socket, req : bytes, head : dict) -> None:
         print("Handling req")
-        host = head["headers"]["host"].split(":")[0]
+        hp = head["headers"]["host"].split(":")
+        host = hp[0]
         try:
-            port = int(head["headers"]["host"].split(":")[1])
+            port = int(hp[1])
         except IndexError:
             port = 80
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -74,19 +76,19 @@ class Proxy:
         i = 0
         while True:
             try:
-                request = server.recv(self.buffer_size)
-                client.sendall( request )
+                res = server.recv(self.buffer_size)
+                client.sendall(res)
                 i = 0
             except socket.error as err:
                 i += 1
             try:
-                reply = client.recv(self.buffer_size)
-                server.sendall( reply )
+                req = client.recv(self.buffer_size)
+                server.sendall(req)
                 i = 0
             except socket.error as err:
                 i += 1
             
-            if i > 10_000:            
+            if i > 100_000:            
                 print("Empty tunnel, quitting")
                 break
     
