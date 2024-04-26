@@ -22,7 +22,9 @@ class Proxy:
             try:
                 client, addr = self.proxy.accept()
                 req = client.recv(self.buffer_size)
-                head = self.parse_req(req)
+                if req == b"":
+                    continue
+                head = self.parse(req)
                 
                 print(f"\nRequest recieved => {addr[0]}:{addr[1]}")
                 print(head)
@@ -35,6 +37,7 @@ class Proxy:
         print("Handling req")
         hp = head["headers"]["host"].split(":")
         host = hp[0]
+        
         try:
             port = int(hp[1])
         except IndexError:
@@ -44,23 +47,28 @@ class Proxy:
         
         if head["method"] == "CONNECT":
             self.serve_tunnel(client, server)
-        
+
         else:
             server.sendall(req)
             res = server.recv(self.buffer_size)
             client.sendall(res)
             
-            head = self.parse_req(res)
+            head = self.parse(res, False)
+            print("Response recieved")
+            print(head)
             headers = head["headers"]
             data = head["chunk"]
             if "content-length" in headers:
                 n = int(headers["content-length"]) - len(data)
                 while n > 0:
-                    s = server.recv(n)
-                    if not s: break
-                    client.sendall(s)
-                    res += s
-                    n -= len(s)   
+                    try:
+                        s = server.recv(n)
+                        if not s: break
+                        client.sendall(s)
+                        res += s
+                        n -= len(s)
+                    except BrokenPipeError:
+                        break
             print("Response sent")
             
         server.close()
@@ -93,16 +101,24 @@ class Proxy:
                 break
     
     
-    def parse_req(self, req : bytes) -> dict:
-        nodes = req.split(b"\r\n\r\n")
+    def parse(self, data : bytes, is_req : bool = True) -> dict:
+        nodes = data.split(b"\r\n\r\n")
         heads = nodes[0].split(b"\r\n")
         meta = heads.pop(0).decode("utf-8")
-        data = {
-            "method" : meta.split(" ")[0],
-            "meta": meta,
-            "headers": {},
-            "chunk": b""
-        }
+        if is_req:
+            data = {
+                "method" : meta.split(" ")[0],
+                "meta": meta,
+                "headers": {},
+                "chunk": b""
+            }
+        else:
+            data = {
+                "res_code" : meta.split(" ")[1],
+                "meta": meta,
+                "headers": {},
+                "chunk": b""
+            }
         if len(nodes) >= 2:
             data["chunk"] = nodes[1]
     
