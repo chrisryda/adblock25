@@ -3,10 +3,15 @@ import os.path
 import os
 from mitmproxy import http
 
-os.remove("./tmp/frommitm.mp3")
-os.remove("./tmp/one.mp3")
+def refresh():
+    try:
+        os.remove("./tmp/frommitm.mp3")
+        os.remove("./tmp/one.mp3")
+    except FileNotFoundError:
+        pass
 
 def request(flow: http.HTTPFlow) -> None:
+    refresh()
     print(f"\nHere's the req\n{flow.request}\n")
     # if flow.request.method == "GET":
     #     Thread(target=getit, args=(flow.request.url,), daemon=True).start()
