@@ -3,6 +3,9 @@ import os.path
 import os
 from mitmproxy import http
 
+# Se på connections mot en host: f.eks megaphone.fm, og sende samme d til alle
+# Forbedre if-statement linje 27
+
 def refresh():
     try:
         os.remove("./tmp/frommitm.mp3")
@@ -11,49 +14,39 @@ def refresh():
     except FileNotFoundError:
         pass
     
-# def chunks(lst, n):
-#     for i in range(0, len(lst), n):
-#         yield lst[i:i + n]
-
-class MitmAddon:
+class AdStripper:
     def __init__(self):
         self.delta = 2**14 # 2**11 = 2048
-        self.num = 0
         self.url = ""
-        # self.d = b""
-        self.accessed = False
-        
+        self.connections = []
         refresh()
-        
+    
     def response(self, flow: http.HTTPFlow) -> None:
-        self.num += 1
-        flow.response.headers["count"] = str(self.num)
         try:
             if flow.response.headers["Content-Type"] != "audio/mpeg":
-                if flow.response.status_code == 302 and self.num == 1:
+                if (flow.response.status_code == 302 and flow.client_conn not in self.connections):
                     self.url = flow.request.url
+                    self.connections.append(flow.client_conn)
                 return
         
         except KeyError:
                 return
         
-        print(f"Going for it with url: {self.url}")
         if flow.response.status_code == 200 and self.url :
+            print(f"Going for it with url: {self.url}")
             data = flow.response.content
             d = self.strip_ads(data)
-
-            if not self.accessed:
-                self.accessed = True
-                with open("./tmp/frommitm.mp3", "wb") as out:
-                    out.write(flow.response.content)
-                with open("./tmp/response.mp3", "wb") as out:
-                    out.write(d)
-            
+            print("Ads stripped, sending response")
             flow.response = http.Response.make(
                 200,
                 d,  
                 {"Content-Length": str(len(d))}
             )
+            with open("./tmp/frommitm.mp3", "wb") as out:
+                out.write(flow.response.content)
+            with open("./tmp/response.mp3", "wb") as out:
+                out.write(d)
+
 
     def strip_ads(self, data: bytes) -> bytes:
         d = b""
@@ -65,4 +58,4 @@ class MitmAddon:
                         d += chunk
         return d
 
-addons = [MitmAddon()]
+addons = [AdStripper()]

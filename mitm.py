@@ -12,6 +12,6 @@ ip = session.get("http://httpbin.org/ip").text.split("\"")
 print(f"Using IP-address {ip[3]} for upstream connections")
 
 mitmdump(args=[
-    "-s", "god.py",
+    "-s", "addon.py",
     "--set", f"connect_adr={ip[3]}"
 ])
