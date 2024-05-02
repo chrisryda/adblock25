@@ -17,9 +17,10 @@ class AdStripper:
             content_type = ""
             pass
         
-        if flow.response.status_code == 200 and content_type == "audio/mpeg" and self.url:
+        if flow.response.status_code == 200 and content_type == "audio/mpeg":
+            if not self.url:
+                self.url = flow.request.url
             data = flow.response.content
-            print("Going in")
             d = self.strip_ads(data)
             print("Ads stripped, sending response")
             flow.response = http.Response.make(
