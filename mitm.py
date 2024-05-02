@@ -1,6 +1,5 @@
 from mitmproxy.tools.main import mitmdump
 import requests
-import os
 
 def get_tor_session():
     session = requests.session()
