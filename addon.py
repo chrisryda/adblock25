@@ -28,25 +28,25 @@ class AdStripper:
                     self.url = flow.request.url
                     self.connections.append(flow.client_conn)
                 return
+
+            else:
+                if flow.response.status_code == 200 and self.url :
+                    print(f"Going for it with url: {self.url}")
+                    data = flow.response.content
+                    d = self.strip_ads(data)
+                    print("Ads stripped, sending response")
+                    flow.response = http.Response.make(
+                        200,
+                        d,  
+                        {"Content-Length": str(len(d))}
+                    )
+                    with open("./tmp/frommitm.mp3", "wb") as out:
+                        out.write(flow.response.content)
+                    with open("./tmp/response.mp3", "wb") as out:
+                        out.write(d)
         
         except KeyError:
                 return
-        
-        if flow.response.status_code == 200 and self.url :
-            print(f"Going for it with url: {self.url}")
-            data = flow.response.content
-            d = self.strip_ads(data)
-            print("Ads stripped, sending response")
-            flow.response = http.Response.make(
-                200,
-                d,  
-                {"Content-Length": str(len(d))}
-            )
-            with open("./tmp/frommitm.mp3", "wb") as out:
-                out.write(flow.response.content)
-            with open("./tmp/response.mp3", "wb") as out:
-                out.write(d)
-
 
     def strip_ads(self, data: bytes) -> bytes:
         d = b""
