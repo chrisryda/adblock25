@@ -1,5 +1,4 @@
 from threading import Thread
-import requests
 import socket
 import sys
 
@@ -8,13 +7,12 @@ class Proxy:
         self.port = port
         self.proxy = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.proxy.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        # self.proxy.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.buffer_size = 2048
 
     def run(self):
         # ip = input("Enter IP-address of the Waydroid-instance: ")
         # self.proxy.bind(("ip", self.port))
-        self.proxy.bind(("192.168.240.1", self.port)) # What's up with needing this specific IP? 192.168.240.x
+        self.proxy.bind(("192.168.240.1", self.port))
         self.proxy.listen(100)
         print("  * Proxy server is running on port {}".format(self.port))
         
@@ -27,14 +25,12 @@ class Proxy:
                 head = self.parse(req)
                 
                 print(f"\nRequest recieved => {addr[0]}:{addr[1]}")
-                print(head)
                 Thread(target=self.handle_request, args=(client, req, head), daemon=True).start()
             except KeyboardInterrupt:
                 print("\n\nCtrl+C pressed, exiting...")
                 sys.exit(0)
 
     def handle_request(self, client : socket, req : bytes, head : dict) -> None:
-        print("Handling req")
         hp = head["headers"]["host"].split(":")
         host = hp[0]
         
@@ -54,8 +50,6 @@ class Proxy:
             client.sendall(res)
             
             head = self.parse(res, False)
-            print("Response recieved")
-            print(head)
             headers = head["headers"]
             data = head["chunk"]
             if "content-length" in headers:
@@ -87,18 +81,20 @@ class Proxy:
                 res = server.recv(self.buffer_size)
                 client.sendall(res)
                 i = 0
-            except socket.error as err:
+            except socket.error:
                 i += 1
             try:
                 req = client.recv(self.buffer_size)
                 server.sendall(req)
                 i = 0
-            except socket.error as err:
+            except socket.error:
                 i += 1
             
             if i > 100_000:            
                 print("Empty tunnel, quitting")
                 break
+        server.close()
+        client.close()
     
     
     def parse(self, data : bytes, is_req : bool = True) -> dict:
@@ -132,5 +128,5 @@ class Proxy:
         return data
 
 if __name__ == "__main__":
-    proxy = Proxy(3001)
+    proxy = Proxy(8080)
     proxy.run()
