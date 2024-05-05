@@ -11,6 +11,7 @@ class AdStripper:
     def response(self, flow: http.HTTPFlow) -> None:
         if flow.response.status_code == 302:
             self.update_route(flow.request.url, flow.response.headers["location"])
+            print(self.route)
             return
         
         try:
@@ -21,12 +22,13 @@ class AdStripper:
         if flow.response.status_code == 200 and content_type == "audio/mpeg":
             if self.url in self.stripped.keys():
                 d = self.stripped[self.url]
+                print("Found stripped file, sending response")
             else:
                 data = flow.response.content
                 d = self.strip_ads(data)
                 self.stripped[self.url] = d
-        
-            print("Ads stripped, sending response")
+                print("Ads stripped, sending response")
+            
             flow.response = http.Response.make(
                 200,
                 d,  
@@ -35,11 +37,18 @@ class AdStripper:
         
     def strip_ads(self, data: bytes) -> bytes:
         d = b""
-        with requests.get(self.url, stream=True) as x:
+        print(self.url)
+        session = self.get_tor_session()
+        with session.get(self.url, stream=True) as x:
             for chunk in x.iter_content(self.delta):
                 if data.find(chunk) != -1:   
                     d += chunk
         return d
+    
+    def get_tor_session(self):
+        session = requests.session()
+        session.proxies = {'http': 'socks5h://127.0.0.1:9050', 'https': 'socks5h://127.0.0.1:9050'}
+        return session
 
     def route_contains(self, req_url: str) -> bool:
         for lst in self.route.values():
@@ -64,8 +73,9 @@ class AdStripper:
                 self.route[origin].append(found_url)
         
         else:
-            self.route = {}
-            self.stripped = {}
+            if len(self.route) >= 10:
+                self.route = {}
+                self.stripped = {}
             self.url = req_url
             self.route[req_url] = [found_url]
 
