@@ -1,63 +1,37 @@
 import requests
 from mitmproxy import http
 
-class AdStripper:
+class AdStripper: # TODO: Rename innit
     def __init__(self):
         self.delta = 2**13
         self.url = ""
-        self.num = 0
         self.route = {}
         self.stripped = {}
     
-    def request(self, flow: http.HTTPFlow) -> None:
-        self.num += 1
-        flow.request.headers["count"] = str(self.num)
-        if self.num == 1:
-            self.route[flow.request.url] = []
-    
     def response(self, flow: http.HTTPFlow) -> None:
         if flow.response.status_code == 302:
-            req_url = flow.request.url
-            found_url = flow.response.headers["location"]
-            
-            if req_url in self.route.keys():
-                print(f"Key {req_url} already exists")
-                if found_url not in self.route[req_url]:
-                    self.route[req_url].append(found_url)
-            
-            elif self.innit(req_url):
-                origin = self.get_origin(req_url)
-                if found_url not in self.route[origin]:
-                    self.route[origin].append(found_url)
-            
-            else:
-                self.route[req_url] = [found_url]
-
-            print(f"Num of keys: {len(list(self.route.keys()))}")
-            print(self.route)
-            self.url = flow.request.url
+            self.update_route(flow.request.url, flow.response.headers["location"])
             return
         
         try:
             content_type = flow.response.headers["Content-Type"]
         except KeyError:
-            content_type = ""
-            pass
+            return
         
         if flow.response.status_code == 200 and content_type == "audio/mpeg":
-            if not self.url:
-                self.url = flow.request.url
-            data = flow.response.content
-            d = self.strip_ads(data)
+            if self.url in self.stripped.keys():
+                d = self.stripped[self.url]
+            else:
+                data = flow.response.content
+                d = self.strip_ads(data)
+                self.stripped[self.url] = d
+        
             print("Ads stripped, sending response")
             flow.response = http.Response.make(
                 200,
                 d,  
                 {"Content-Length": str(len(d))}
             )
-        
-        else:
-            return
         
     def strip_ads(self, data: bytes) -> bytes:
         d = b""
@@ -78,5 +52,21 @@ class AdStripper:
             if url in lst:
                 return origin
         return None
+    
+    def update_route(self, req_url: str, found_url: str) -> None:
+        if req_url in self.route.keys():
+            if found_url not in self.route[req_url]:
+                self.route[req_url].append(found_url)
+        
+        elif self.innit(req_url):
+            origin = self.get_origin(req_url)
+            if found_url not in self.route[origin]:
+                self.route[origin].append(found_url)
+        
+        else:
+            self.route = {}
+            self.stripped = {}
+            self.url = req_url
+            self.route[req_url] = [found_url]
 
 addons = [AdStripper()]
