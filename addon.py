@@ -1,7 +1,7 @@
 import requests
 from mitmproxy import http
 
-class AdStripper: # TODO: Rename innit
+class AdStripper:
     def __init__(self):
         self.delta = 2**13
         self.url = ""
@@ -41,7 +41,7 @@ class AdStripper: # TODO: Rename innit
                     d += chunk
         return d
 
-    def innit(self, req_url: str) -> bool:
+    def route_contains(self, req_url: str) -> bool:
         for lst in self.route.values():
             if req_url in lst:
                 return True
@@ -58,7 +58,7 @@ class AdStripper: # TODO: Rename innit
             if found_url not in self.route[req_url]:
                 self.route[req_url].append(found_url)
         
-        elif self.innit(req_url):
+        elif self.route_contains(req_url):
             origin = self.get_origin(req_url)
             if found_url not in self.route[origin]:
                 self.route[origin].append(found_url)
