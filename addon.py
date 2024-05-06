@@ -3,15 +3,20 @@ from mitmproxy import http
 
 class AdStripper:
     def __init__(self):
+        self.session = self.get_tor_session()
         self.delta = 2**13
         self.url = ""
         self.route = {}
         self.stripped = {}
     
+    def get_tor_session(self):
+        session = requests.session()
+        session.proxies = {'http': 'socks5://127.0.0.1:9050', 'https': 'socks5://127.0.0.1:9050'}
+        return session
+    
     def response(self, flow: http.HTTPFlow) -> None:
         if flow.response.status_code == 302:
             self.update_route(flow.request.url, flow.response.headers["location"])
-            print(self.route)
             return
         
         try:
@@ -38,18 +43,16 @@ class AdStripper:
     def strip_ads(self, data: bytes) -> bytes:
         d = b""
         print(self.url)
-        session = self.get_tor_session()
-        with session.get(self.url, stream=True) as x:
+        i = 0
+        with self.session.get(self.url, stream=True) as x:
+            print("Ok, here we go")
             for chunk in x.iter_content(self.delta):
+                i += 1
+                print(i)
                 if data.find(chunk) != -1:   
                     d += chunk
         return d
     
-    def get_tor_session(self):
-        session = requests.session()
-        session.proxies = {'http': 'socks5h://127.0.0.1:9050', 'https': 'socks5h://127.0.0.1:9050'}
-        return session
-
     def route_contains(self, req_url: str) -> bool:
         for lst in self.route.values():
             if req_url in lst:
