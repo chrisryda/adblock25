@@ -1,5 +1,6 @@
 import requests
 from mitmproxy import http
+import logging
 
 class AdStripper:
     def __init__(self):
@@ -25,15 +26,19 @@ class AdStripper:
             return
         
         if flow.response.status_code == 200 and content_type == "audio/mpeg":
-            print(flow.response)
+            logging.info(flow.response)
             if self.url in self.stripped.keys():
                 d = self.stripped[self.url]
-                print("Found stripped file, sending response")
+                logging.info("Found stripped file, sending response")
             else:
                 data = flow.response.content
                 d = self.strip_ads(data)
+                if not d:
+                    logging.error("Something went wrong, and the ads could not be removed. Serving original file.")
+                    return
+                
                 self.stripped[self.url] = d
-                print("\nAds stripped, sending response")
+                logging.info("Ads stripped, sending response")
             
             flow.response = http.Response.make(
                 200,
@@ -46,14 +51,21 @@ class AdStripper:
         prev_idx = 0
         i = 0
         with self.session.get(self.url, stream=True) as x:
-            n = int(int(x.headers["Content-Length"]) / self.delta)
+            try:
+                n = int(int(x.headers["Content-Length"]) / self.delta)
+            except KeyError:
+                n = "?"
+            
             for chunk in x.iter_content(self.delta):
-                i += 1
                 print(f"\rProgress: {i} / {n}", end="")
+                i += 1
+                
                 idx = data.find(chunk)
                 if idx != -1 and abs(idx-prev_idx) <= 100*self.delta :   
                     d += chunk
+                    data = data.replace(chunk, b"", 1)
                 prev_idx = idx
+        print()
         return d
     
     def route_contains(self, req_url: str) -> bool:
