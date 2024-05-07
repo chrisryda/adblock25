@@ -25,6 +25,7 @@ class AdStripper:
             return
         
         if flow.response.status_code == 200 and content_type == "audio/mpeg":
+            print(flow.response)
             if self.url in self.stripped.keys():
                 d = self.stripped[self.url]
                 print("Found stripped file, sending response")
@@ -32,7 +33,7 @@ class AdStripper:
                 data = flow.response.content
                 d = self.strip_ads(data)
                 self.stripped[self.url] = d
-                print("Ads stripped, sending response")
+                print("\nAds stripped, sending response")
             
             flow.response = http.Response.make(
                 200,
@@ -42,15 +43,17 @@ class AdStripper:
         
     def strip_ads(self, data: bytes) -> bytes:
         d = b""
-        print(self.url)
+        prev_idx = 0
         i = 0
         with self.session.get(self.url, stream=True) as x:
-            print("Ok, here we go")
+            n = int(int(x.headers["Content-Length"]) / self.delta)
             for chunk in x.iter_content(self.delta):
                 i += 1
-                print(i)
-                if data.find(chunk) != -1:   
+                print(f"\rProgress: {i} / {n}", end="")
+                idx = data.find(chunk)
+                if idx != -1 and abs(idx-prev_idx) <= 100*self.delta :   
                     d += chunk
+                prev_idx = idx
         return d
     
     def route_contains(self, req_url: str) -> bool:
@@ -76,7 +79,7 @@ class AdStripper:
                 self.route[origin].append(found_url)
         
         else:
-            if len(self.route) >= 10:
+            if len(self.route) >= 5:
                 self.route = {}
                 self.stripped = {}
             self.url = req_url
