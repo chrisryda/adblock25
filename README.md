@@ -15,7 +15,7 @@ pip install -r requirements.txt
 ```
 
 ### Tor proxy
-In the `torrc` file, add the following line:
+In the `torrc` file, add the following line and restart the Tor-instance:
 ```
 SOCKSPort 0.0.0.0:9050
 ```
