@@ -6,7 +6,7 @@ You need the following to run adblock25:
  * Python 3.11 or greater
  * Packages from the `requirements.txt` file.
  * Tor proxy
- * The mitmproxy CA certificate installed on the Waydroid-device
+ * The mitmproxy CA certificate installed on the Waydroid device
 
 ### Install packages using pip
 Run the following command in the root directory of the repository.
@@ -24,7 +24,7 @@ If you want to use a different port, make sure to update `addon.py` and/or `writ
 ### Install the mitmproxy CA certificate
 **Curtesy of user selurvedu in issue [#870](https://github.com/waydroid/waydroid/issues/870).**
 Generate the CA certificate by running `mitm.py`. The certificate, called `mitmproxy-ca-cert.pem`, is now located in `~/.mitmproxy`. 
-To install the certificate on the Waydroid-device, do the following:
+To install the certificate on the Waydroid device, do the following:
 
 Create the `/system/etc/security/cacerts/` directory in the Waydroid overlay file system:
 ```
@@ -47,7 +47,10 @@ You may need to restart Waydroid for the changes to take effect.
 
 ## Set the proxy in AntennaPod
 In AntennaPod, go to:
+
 Settings &#8594; Downloads &#8594; Proxy
 
-Choose `HTTP` as 
+And choose `HTTP` as type. 
 
+
+Input the IP-address of the Waydroid device (which can be seen by running `ip address show` and finding the `waydroid0` entry, default is `192.168.240.1`) and the port of the proxy (default is `8080`). 
