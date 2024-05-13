@@ -22,5 +22,15 @@ SOCKSPort 0.0.0.0:9050
 If you want to use a different port, make sure to update `addon.py` and/or `write.py` accordingly.
 
 ## Install the mitmproxy CA certificate
-This is where it gets a bit tricky. 
+Generate the CA certificate by running `mitm.py`. The certificate, called `mitmproxy-ca-cert.pem`, is now located in `~/.mitmproxy`. 
+Installing the certificate on the Waydroid-device is somewhat tricky, 
+do the following:
+
+Find out the hash of the certificate name using an older algorithm as used by OpenSSL before version 1.0.0:
+```
+$ openssl x509 -subject_hash_old -in mitmproxy-ca-cert.pem | head -1
+>> 12gotit34
+```
+
+
 
