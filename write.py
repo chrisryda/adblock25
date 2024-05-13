@@ -31,9 +31,13 @@ class AdStripper:
         
         if flow.response.status_code == 200 and content_type == "audio/mpeg": 
             logging.info(flow.response)
+            if not self.url:
+                self.url = flow.request.url
+            
             if self.url in self.stripped.keys():
                 d = self.stripped[self.url]
                 logging.info("Found stripped file, sending response")
+            
             else:
                 data = flow.response.content
                 d = self.strip_ads(data, flow)
