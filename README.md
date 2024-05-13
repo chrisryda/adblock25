@@ -22,7 +22,7 @@ SOCKSPort 0.0.0.0:9050
 If you want to use a different port, make sure to update `addon.py` and/or `write.py` accordingly.
 
 ### Install the mitmproxy CA certificate
-###### Curtesy of user selurvedu in issue [#870](https://github.com/waydroid/waydroid/issues/870).
+**Curtesy of user selurvedu in issue [#870](https://github.com/waydroid/waydroid/issues/870).**
 Generate the CA certificate by running `mitm.py`. The certificate, called `mitmproxy-ca-cert.pem`, is now located in `~/.mitmproxy`. 
 To install the certificate on the Waydroid-device, do the following:
 
@@ -45,5 +45,9 @@ $ sudo chmod 644 /var/lib/waydroid/overlay/system/etc/security/cacerts/12gotit34
 
 You may need to restart Waydroid for the changes to take effect. 
 
+## Set the proxy in AntennaPod
+In AntennaPod, go to:
+Settings &#8594; Downloads &#8594; Proxy
 
+Choose `HTTP` as 
 
