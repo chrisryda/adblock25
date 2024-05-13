@@ -1,0 +1,5 @@
+mitmproxy_rs
+mitmproxy
+requests
+logging
+PySocks
