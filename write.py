@@ -51,17 +51,11 @@ class AdStripper:
             )
         
     def strip_ads(self, data: bytes, flow: http.HTTPFlow) -> bytes:
-        try:
-            client_id = flow.client_conn.id
-            os.mkdir(f"./tmp/{client_id}")
-        except FileExistsError:
-            pass
-        
         d = b""
         prev_idx = 0
         i = 0
         with self.session.get(self.url, stream=True) as x:
-            with open(f"./tmp/{client_id}/tor.mp3", "wb") as out, open(f"./tmp/{client_id}/removed.mp3", "wb") as rem:
+            with open(f"./tmp/tor.mp3", "wb") as out, open(f"./tmp/removed.mp3", "wb") as rem:
                 try:
                     n = int(int(x.headers["Content-Length"]) / self.delta)
                 except KeyError:
@@ -79,7 +73,7 @@ class AdStripper:
                     else:
                         rem.write(chunk)
                     prev_idx = idx
-        self.write(flow, d, client_id)
+        self.write(flow, d)
         print()
         return d
     
@@ -112,13 +106,13 @@ class AdStripper:
             self.url = req_url
             self.route[req_url] = [found_url]
     
-    def write(self, flow: http.HTTPFlow, d: bytes, client_id):
-        with open(f"./tmp/{client_id}/mitm.mp3", "wb") as out:
+    def write(self, flow: http.HTTPFlow, d: bytes) -> None:
+        with open(f"./tmp/mitm.mp3", "wb") as out:
             out.write(flow.response.content)
-        with open(f"./tmp/{client_id}/response.mp3", "wb") as out:
+        with open(f"./tmp/response.mp3", "wb") as out:
             out.write(d)
     
-    def refresh(self):
+    def refresh(self) -> None:
         try:
             shutil.rmtree("./tmp")
         except FileNotFoundError:
