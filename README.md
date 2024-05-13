@@ -23,6 +23,7 @@ If you want to use a different port, make sure to update `addon.py` and/or `writ
 
 ### Install the mitmproxy CA certificate
 **Curtesy of user selurvedu in issue [#870](https://github.com/waydroid/waydroid/issues/870).**
+
 Generate the CA certificate by running `mitm.py`. The certificate, called `mitmproxy-ca-cert.pem`, is now located in `~/.mitmproxy`. 
 To install the certificate on the Waydroid device, do the following:
 
