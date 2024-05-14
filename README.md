@@ -53,7 +53,7 @@ Create the `/system/etc/security/cacerts/` directory in the Waydroid overlay fil
 $ sudo mkdir -p /var/lib/waydroid/overlay/system/etc/security/cacerts/
 ```
 
-Find out the hash of the certificate name using an older algorithm as used by OpenSSL before version 1.0.0:
+Get the hash of the certificate using an older algorithm as used by OpenSSL before version 1.0.0:
 ```
 $ openssl x509 -subject_hash_old -in mitmproxy-ca-cert.pem | head -1
 >> 12gotit34
