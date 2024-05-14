@@ -13,7 +13,7 @@ Run the following command in the root directory of the repository.
 ```
 pip install -r requirements.txt
 ```
-If installing the PySocks package does not work, try running:
+If installing the PySocks package does not work, run the following command in the root directory of the repository:
 ```
 pip install -U 'requests[socks]'
 ```
