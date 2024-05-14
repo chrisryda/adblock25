@@ -13,6 +13,10 @@ Run the following command in the root directory of the repository.
 ```
 pip install -r requirements.txt
 ```
+If installing the PySocks package does not work, try running:
+```
+pip install -U 'requests[socks]'
+```
 
 ### Tor proxy
 In the `torrc` file, add the following line and restart the Tor-instance:
