@@ -59,3 +59,25 @@ And choose `HTTP` as type.
 
 
 Input the IP-address of the Waydroid device (which can be seen by running `ip address show` and finding the `waydroid0` entry, default is `192.168.240.1`) and the port of the proxy (default is `8080`). 
+
+
+## Running adblock25
+
+Run adblock25 via a command line. 
+
+### Run
+
+```
+python mitm.py [options]
+```
+
+#### Options
+|  Option | Description  |
+|---|---|
+| -p |  Sets the port the proxy binds to. Default is `8080`.|
+| -a  |  Sets the addon that is loaded with `mitm.py`. Default is `addon.py`.|
+
+Available addons:
+ * addon.py: Removes ads.
+ * write.py: Removes ads and writes processed audio to files.  
+
