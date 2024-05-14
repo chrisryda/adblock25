@@ -12,7 +12,7 @@ class AdStripper:
     
     def get_tor_session(self):
         session = requests.session()
-        session.proxies = {'http': 'socks5h://127.0.0.1:9050', 'https': 'socks5h://127.0.0.1:9050'} # 5h or not?? 
+        session.proxies = {'http': 'socks5h://127.0.0.1:9050', 'https': 'socks5h://127.0.0.1:9050'}
         return session
     
     def response(self, flow: http.HTTPFlow) -> None:
