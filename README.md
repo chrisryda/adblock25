@@ -79,7 +79,7 @@ $ python mitm.py [options]
 |---|---|
 | -h |  Show help message and exit.|
 | -p |  Sets the port the proxy binds to. Default is `8080`.|
-| -a  |  Sets the addon that is loaded with `mitm.py`. Default is `addon.py`.|
+| -a  |  Sets the addon that is loaded by `mitm.py`. Default is `addon.py`.|
 
 Available addons:
  * addon.py: Removes ads.
