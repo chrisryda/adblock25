@@ -23,7 +23,7 @@ In the `torrc` file, add the following line and restart the Tor-instance:
 ```
 SOCKSPort 0.0.0.0:9050
 ```
-If you want to use a different port, make sure to update `addon.py` and/or `write.py` accordingly.
+If you want to use a different port, make sure to update `addon.py` and `write.py` accordingly.
 
 ### Install the mitmproxy CA certificate
 **Curtesy of user selurvedu in issue [#870](https://github.com/waydroid/waydroid/issues/870).**
