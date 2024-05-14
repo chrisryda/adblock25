@@ -1,12 +1,14 @@
 # adblock25
 A proxy-based adblocker for use with AntennaPod on Waydroid.
 
+
 ## Prerequisites 
 You need the following to run adblock25:
  * Python 3.11 or greater
  * Packages from the `requirements.txt` file.
  * Tor proxy
  * The mitmproxy CA certificate installed on the Waydroid device
+
 
 ### Install packages using pip
 Run the following command in the root directory of the repository.
@@ -18,6 +20,7 @@ If installing the PySocks package does not work, run the following command in th
 $ pip install -U 'requests[socks]'
 ```
 
+
 ### Tor proxy
 In the `torrc` file, add the following line and restart the Tor-instance:
 ```
@@ -25,6 +28,20 @@ SOCKSPort 0.0.0.0:9050
 ```
 If you want to use a different port, make sure to update `addon.py` and `write.py` accordingly.
 
+#### Using Tor (AUR)
+
+With the Tor package from the Arch user repository (AUR), the `torrc` file is normally located in `/etc/tor`.
+To restart the Tor-instance, run the following commands:
+
+```
+$ sudo systemctl stop tor.service
+$ sudo systemctl start tor.service
+```
+
+#### Using Tor-browser
+With Tor-browser, the `torrc` file is normally located in `Browser/TorBrowser/Data/Tor` in the Tor-browser directory. Restart the instance by exiting and re-opening the Tor-browser.
+
+ 
 ### Install the mitmproxy CA certificate
 **Curtesy of user selurvedu in issue [#870](https://github.com/waydroid/waydroid/issues/870).**
 
@@ -50,6 +67,7 @@ $ sudo chmod 644 /var/lib/waydroid/overlay/system/etc/security/cacerts/12gotit34
 
 You may need to restart Waydroid for the changes to take effect. 
 
+
 ## Set the proxy in AntennaPod
 In AntennaPod, go to:
 
@@ -63,6 +81,7 @@ $ ip address show
 ```
 
 And finding the `waydroid0` entry. Typically, this address is something like `192.168.240.1`. 
+
  
 ## Running adblock25
 
