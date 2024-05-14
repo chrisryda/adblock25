@@ -11,11 +11,11 @@ You need the following to run adblock25:
 ### Install packages using pip
 Run the following command in the root directory of the repository.
 ```
-pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 If installing the PySocks package does not work, run the following command in the root directory of the repository:
 ```
-pip install -U 'requests[socks]'
+$ pip install -U 'requests[socks]'
 ```
 
 ### Tor proxy
@@ -55,12 +55,15 @@ In AntennaPod, go to:
 
 Settings &#8594; Downloads &#8594; Proxy
 
-And choose `HTTP` as type. 
+And choose `HTTP` as type. Input the IP-address of the Waydroid device and the port of the proxy.
 
+The IP-address can be seen by running 
+```
+$ ip address show
+```
 
-Input the IP-address of the Waydroid device (which can be seen by running `ip address show` and finding the `waydroid0` entry, default is `192.168.240.1`) and the port of the proxy (default is `8080`). 
-
-
+And finding the `waydroid0` entry. Typically, this address is something like `192.168.240.1`. 
+ 
 ## Running adblock25
 
 Run adblock25 via a command line. 
@@ -68,7 +71,7 @@ Run adblock25 via a command line.
 ### Run
 
 ```
-python mitm.py [options]
+$ python mitm.py [options]
 ```
 
 #### Options
