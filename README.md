@@ -66,23 +66,6 @@ $ sudo systemctl start tor.service
 With Tor-browser, the `torrc` file is normally located in `Browser/TorBrowser/Data/Tor` in the Tor-browser directory. Restart the instance by exiting and re-opening the Tor-browser.
 
  
-
-
-## Set the proxy in AntennaPod
-In AntennaPod, go to:
-
-Settings &#8594; Downloads &#8594; Proxy
-
-And choose `HTTP` as type. Input the IP-address of the Waydroid device and the port of the proxy.
-
-The IP-address can be seen by running 
-```
-$ ip address show
-```
-
-And finding the `waydroid0` entry. Typically, this address is something like `192.168.240.1`. 
-
- 
 ## Running adblock25
 
 Run adblock25 via a command line. 
@@ -103,4 +86,20 @@ $ python mitm.py [options]
 Available addons:
  * addon.py: Removes ads.
  * write.py: Removes ads and writes processed audio to files.  
+ 
+
+## Set the proxy in AntennaPod
+With the proxy running, in AntennaPod, go to:
+
+Settings &#8594; Downloads &#8594; Proxy
+
+And choose `HTTP` as type. Input the IP-address of the Waydroid device and the port of the proxy.
+
+The IP-address can be seen by running 
+```
+$ ip address show
+```
+
+And finding the `waydroid0` entry. Typically, this address is something like `192.168.240.1`. 
+
 
