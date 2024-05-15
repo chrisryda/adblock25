@@ -25,7 +25,31 @@ class AdStripper:
         except KeyError:
             return
         
-        if flow.response.status_code == 200 and content_type == "audio/mpeg":
+        if flow.response.status_code == 206 and content_type == "audio/mpeg":
+            try:
+                bs = int(flow.request.headers["range"].split("=")[1][:-1])
+                print(bs)
+            except KeyError:
+                logging.info("Could not determine skip, serving original file")
+                return  
+                                 
+            logging.info(flow.response)
+            if not self.url:
+                self.url = flow.request.url
+
+            if self.url in self.stripped.keys():
+                d = self.stripped[self.url][(bs-self.delta*10):]
+                logging.info("Found stripped file, sending response")
+                flow.response = http.Response.make(
+                    206,
+                    d,  
+                    {"Content-Length": str(len(d))}
+                )
+            
+            else:
+                logging.info("Could not determine skip, serving original file")
+        
+        elif flow.response.status_code == 200 and content_type == "audio/mpeg":
             logging.info(flow.response)
             if not self.url:
                 self.url = flow.request.url
