@@ -44,15 +44,15 @@ $ sudo mkdir -p /var/lib/waydroid/overlay/system/etc/security/cacerts/
 Get the hash of the certificate using an older algorithm as used by OpenSSL before version 1.0.0:
 ```
 $ openssl x509 -subject_hash_old -in mitmproxy-ca-cert.pem | head -1
->> 12gotit34
+12example34
 ```
 
 <br />
 
 Copy the certificate, renaming it to the hash with `.0` appended, to the created directory and set the proper permissions for it:
 ```
-$ sudo cp mitmproxy-ca-cert.pem /var/lib/waydroid/overlay/system/etc/security/cacerts/12gotit34.0
-$ sudo chmod 644 /var/lib/waydroid/overlay/system/etc/security/cacerts/12gotit34.0
+$ sudo cp mitmproxy-ca-cert.pem /var/lib/waydroid/overlay/system/etc/security/cacerts/12example34.0
+$ sudo chmod 644 /var/lib/waydroid/overlay/system/etc/security/cacerts/12example34.0
 ```
 
 You may need to restart Waydroid for the changes to take effect. 
