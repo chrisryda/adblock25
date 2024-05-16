@@ -33,6 +33,7 @@ class AdStripper:
                 return  
                                  
             logging.info(flow.response)
+            self.url = self.get_origin(flow.request.url)
             if not self.url:
                 self.url = flow.request.url
 
@@ -50,6 +51,7 @@ class AdStripper:
         
         elif flow.response.status_code == 200 and content_type == "audio/mpeg":
             logging.info(flow.response)
+            self.url = self.get_origin(flow.request.url)
             if not self.url:
                 self.url = flow.request.url
             
@@ -121,7 +123,6 @@ class AdStripper:
             if len(self.route) >= 5:
                 self.route = {}
                 self.stripped = {}
-            self.url = req_url
             self.route[req_url] = [found_url]
 
 addons = [AdStripper()]
