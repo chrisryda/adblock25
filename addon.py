@@ -28,7 +28,6 @@ class AdStripper:
         if flow.response.status_code == 206 and content_type == "audio/mpeg":
             try:
                 bs = int(flow.request.headers["range"].split("=")[1][:-1])
-                print(bs)
             except KeyError:
                 logging.info("Could not determine skip, serving original file")
                 return  
