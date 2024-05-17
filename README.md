@@ -90,10 +90,10 @@ To restart the Tor-instance, run the following commands:
 <br />
 
 ```
-sudo systemctl stop tor.service
+sudo systemctl stop tor
 ```
 ```
-sudo systemctl start tor.service
+sudo systemctl start tor
 ```
 
 <br />
