@@ -52,6 +52,8 @@ This will output a hash like `12example34`.
 Copy the certificate, renaming it to the hash with `.0` appended, to the created directory and set the proper permissions for it:
 ```
 sudo cp ~/.mitmproxy/mitmproxy-ca-cert.pem /var/lib/waydroid/overlay/system/etc/security/cacerts/12example34.0
+```
+```
 sudo chmod 644 /var/lib/waydroid/overlay/system/etc/security/cacerts/12example34.0
 ```
 
