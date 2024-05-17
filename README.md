@@ -27,7 +27,10 @@ pip install -U 'requests[socks]'
 ### Install the mitmproxy CA certificate
 **Curtesy of user selurvedu in issue [#870](https://github.com/waydroid/waydroid/issues/870).**
 
-Generate the CA certificate by running `mitm.py`. 
+Generate the CA certificate by [running adblock25](#running-adblock25).
+
+It needs only run for a couple of seconds, and once you see `HTTP(S) proxy listening at *:<port>` you can shut it down.
+
 The certificate, called `mitmproxy-ca-cert.pem`, is now located in `~/.mitmproxy`. 
 
 To install the certificate on the Waydroid device, do the following:
@@ -126,7 +129,7 @@ python mitm.py [options]
 |  Option | Description  |
 |---|---|
 | -h |  Show help message and exit.|
-| -p `num`|  Sets the port the proxy binds to. Default is `8080`.|
+| -p `num`|  Sets the port adblock25 binds to. Default is `8080`.|
 | -a `file.py`|  Sets the addon that is loaded by `mitm.py`. Default is `addon.py`.|
 
 Available addons:
@@ -140,7 +143,7 @@ With the proxy running, in AntennaPod, go to:
 
 Settings &#8594; Downloads &#8594; Proxy
 
-And choose `HTTP` as type. Input the IP-address of the Waydroid device and the port of the proxy.
+And choose `HTTP` as type. Input the IP-address of the Waydroid device and the port `mitm.py` is listening at. 
 
 The IP-address can be seen by running the command below. 
 The address is listed under the `waydroid0` entry. Typically, this address is something like `192.168.240.1`. 
@@ -151,3 +154,6 @@ The address is listed under the `waydroid0` entry. Typically, this address is so
 ip address show
 ```
 <br />
+
+Make sure adblock25 is running.
+After inputting the IP-adress and port of `mitm.py`, press `Test` &#8594; `OK`.   
