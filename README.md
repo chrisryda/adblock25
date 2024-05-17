@@ -29,7 +29,7 @@ pip install -U 'requests[socks]'
 
 Generate the CA certificate by [running adblock25](#running-adblock25).
 
-It needs only run for a couple of seconds, and once you see `HTTP(S) proxy listening at *:<port>` you can shut it down.
+It only needs to run for a couple of seconds, and once you see `HTTP(S) proxy listening at *:<port>` you can shut it down.
 
 The certificate, called `mitmproxy-ca-cert.pem`, is now located in `~/.mitmproxy`. 
 
@@ -143,7 +143,7 @@ With the proxy running, in AntennaPod, go to:
 
 Settings &#8594; Downloads &#8594; Proxy
 
-And choose `HTTP` as type. Input the IP-address of the Waydroid device and the port `mitm.py` is listening at. 
+And choose `HTTP` as type. Input the IP-address of the Waydroid device and the port adblock25 is listening at (default `8080`). 
 
 The IP-address can be seen by running the command below. 
 The address is listed under the `waydroid0` entry. Typically, this address is something like `192.168.240.1`. 
@@ -156,4 +156,4 @@ ip address show
 <br />
 
 Make sure adblock25 is running.
-After inputting the IP-adress and port of `mitm.py`, press `Test` &#8594; `OK`.   
+After inputting the IP-adress and port of adblock25, press `Test` &#8594; `OK`.   
