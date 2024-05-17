@@ -42,7 +42,7 @@ class AdStripper:
                 self.url = flow.request.url
 
             if self.url in self.stripped.keys():
-                d = self.stripped[self.url][(bs-self.delta*10):]
+                d = self.stripped[self.url][bs:]
                 logging.info("Found stripped file, sending response")
                 flow.response = http.Response.make(
                     206,
@@ -55,6 +55,7 @@ class AdStripper:
         
         elif flow.response.status_code == 200 and content_type == "audio/mpeg": 
             logging.info(flow.response)
+            logging.info("Audio file recieved, starting ad stripping...")
             self.url = self.get_origin(flow.request.url)
             if not self.url:
                 self.url = flow.request.url
@@ -96,7 +97,7 @@ class AdStripper:
                     i += 1
                     
                     idx = data.find(chunk)
-                    if idx != -1 and abs(idx-prev_idx) <= 100*self.delta :   
+                    if idx != -1 and abs(idx-prev_idx) <= 100*self.delta:   
                         d += chunk
                         data = data.replace(chunk, b"", 1)
                     else:
