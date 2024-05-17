@@ -71,7 +71,7 @@ Below are two different options.
 
 <br />
 
-#### Using tor (AUR)
+#### Option 1: Using tor (AUR)
 
 With the `tor` package from the Arch user repository (AUR), the `torrc` file is located in `/etc/tor` by default.
 Add the following line to the `torrc` file:
@@ -98,7 +98,7 @@ sudo systemctl start tor
 
 <br />
 
-#### Using Tor-browser
+#### Option 2: Using Tor-browser
 With Tor-browser, the `torrc` file is located in `Browser/TorBrowser/Data/Tor` in the Tor-browser directory by default.
 Add the following line to the `torrc` file:
 
