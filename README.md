@@ -15,11 +15,11 @@ You need the following to run adblock25:
 ### Install packages using pip
 Run the following command in the root directory of the repository.
 ```
-$ pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 If installing the PySocks package does not work, run the following command in the root directory of the repository:
 ```
-$ pip install -U 'requests[socks]'
+pip install -U 'requests[socks]'
 ```
 
 <br />
@@ -36,23 +36,23 @@ To install the certificate on the Waydroid device, do the following:
 
 Create the `/system/etc/security/cacerts/` directory in the Waydroid overlay file system:
 ```
-$ sudo mkdir -p /var/lib/waydroid/overlay/system/etc/security/cacerts/
+sudo mkdir -p /var/lib/waydroid/overlay/system/etc/security/cacerts/
 ```
 
 <br />
 
 Get the hash of the certificate using an older algorithm as used by OpenSSL before version 1.0.0:
 ```
-$ openssl x509 -subject_hash_old -in mitmproxy-ca-cert.pem | head -1
-12example34
+openssl x509 -subject_hash_old -in ~/.mitmproxy/mitmproxy-ca-cert.pem | head -1
 ```
+This will output a hash like `12example34`.
 
 <br />
 
 Copy the certificate, renaming it to the hash with `.0` appended, to the created directory and set the proper permissions for it:
 ```
-$ sudo cp mitmproxy-ca-cert.pem /var/lib/waydroid/overlay/system/etc/security/cacerts/12example34.0
-$ sudo chmod 644 /var/lib/waydroid/overlay/system/etc/security/cacerts/12example34.0
+sudo cp ~/.mitmproxy/mitmproxy-ca-cert.pem /var/lib/waydroid/overlay/system/etc/security/cacerts/12example34.0
+sudo chmod 644 /var/lib/waydroid/overlay/system/etc/security/cacerts/12example34.0
 ```
 
 You may need to restart Waydroid for the changes to take effect. 
@@ -76,8 +76,8 @@ To restart the Tor-instance, run the following commands:
 <br />
 
 ```
-$ sudo systemctl stop tor.service
-$ sudo systemctl start tor.service
+sudo systemctl stop tor.service
+sudo systemctl start tor.service
 ```
 
 <br />
@@ -94,7 +94,7 @@ Run adblock25 via a command line.
 ### Run
 
 ```
-$ python mitm.py [options]
+python mitm.py [options]
 ```
 
 #### Options
@@ -117,15 +117,12 @@ Settings &#8594; Downloads &#8594; Proxy
 
 And choose `HTTP` as type. Input the IP-address of the Waydroid device and the port of the proxy.
 
-The IP-address can be seen by running 
-
-<br />
-
-```
-$ ip address show
-```
-<br />
-
+The IP-address can be seen by running the command below. 
 The address is listed under the `waydroid0` entry. Typically, this address is something like `192.168.240.1`. 
 
+<br />
 
+```
+ip address show
+```
+<br />
