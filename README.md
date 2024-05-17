@@ -8,7 +8,7 @@ You need the following to run adblock25:
  * Python 3.11 or greater
  * Packages from the `requirements.txt` file.
  * The mitmproxy CA certificate installed on the Waydroid device
- * Tor proxy
+ * Tor SOCKS proxy
 
 <br />
 
@@ -60,7 +60,19 @@ You may need to restart Waydroid for the changes to take effect.
 <br />
 
 ### Tor proxy
-In the `torrc` file, add the following line and restart the Tor-instance:
+To open a Tor SOCKS proxy, you need to edit your `torrc` file.
+The location of this file depends on how Tor is installed on your system.
+Below are two different options. 
+
+<br />
+
+#### Using tor (AUR)
+
+With the `tor` package from the Arch user repository (AUR), the `torrc` file is located in `/etc/tor` by default.
+Add the following line to the `torrc` file:
+
+<br />
+
 ```
 SOCKSPort 0.0.0.0:9050
 ```
@@ -68,22 +80,33 @@ If you want to use a different port, make sure to update `addon.py` and `write.p
 
 <br />
 
-#### Using Tor (AUR)
-
-With the Tor package from the Arch user repository (AUR), the `torrc` file is normally located in `/etc/tor`.
 To restart the Tor-instance, run the following commands:
 
 <br />
 
 ```
 sudo systemctl stop tor.service
+```
+```
 sudo systemctl start tor.service
 ```
 
 <br />
 
 #### Using Tor-browser
-With Tor-browser, the `torrc` file is normally located in `Browser/TorBrowser/Data/Tor` in the Tor-browser directory. Restart the instance by exiting and re-opening the Tor-browser.
+With Tor-browser, the `torrc` file is located in `Browser/TorBrowser/Data/Tor` in the Tor-browser directory by default.
+Add the following line to the `torrc` file:
+
+<br />
+
+```
+SOCKSPort 0.0.0.0:9050
+```
+If you want to use a different port, make sure to update `addon.py` and `write.py` accordingly.
+
+<br />
+
+Restart the instance by exiting and re-opening the Tor-browser.
 
 <br />
 
@@ -101,8 +124,8 @@ python mitm.py [options]
 |  Option | Description  |
 |---|---|
 | -h |  Show help message and exit.|
-| -p |  Sets the port the proxy binds to. Default is `8080`.|
-| -a  |  Sets the addon that is loaded by `mitm.py`. Default is `addon.py`.|
+| -p `num`|  Sets the port the proxy binds to. Default is `8080`.|
+| -a `file.py`|  Sets the addon that is loaded by `mitm.py`. Default is `addon.py`.|
 
 Available addons:
  * addon.py: Removes ads.
