@@ -139,7 +139,7 @@ Available addons:
 <br />
 
 ## Set the proxy in AntennaPod
-With the proxy running, in AntennaPod, go to:
+With adblock25 running, in AntennaPod, go to:
 
 Settings &#8594; Downloads &#8594; Proxy
 
