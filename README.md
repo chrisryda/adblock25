@@ -156,4 +156,4 @@ ip address show
 <br />
 
 Make sure adblock25 is running.
-After inputting the IP-adress and port of adblock25, press `Test` &#8594; `OK`.   
+After inputting the IP-adress of the Waydroid device and the port of adblock25, press `Test` &#8594; `OK`.   
