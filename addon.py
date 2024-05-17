@@ -25,8 +25,34 @@ class AdStripper:
         except KeyError:
             return
         
-        if flow.response.status_code == 200 and content_type == "audio/mpeg":
+        if flow.response.status_code == 206 and content_type == "audio/mpeg":
+            try:
+                bs = int(flow.request.headers["range"].split("=")[1][:-1])
+            except KeyError:
+                logging.info("Could not determine skip, serving original file")
+                return  
+                                 
             logging.info(flow.response)
+            self.url = self.get_origin(flow.request.url)
+            if not self.url:
+                self.url = flow.request.url
+
+            if self.url in self.stripped.keys():
+                d = self.stripped[self.url][bs:]
+                logging.info("Found stripped file, sending response")
+                flow.response = http.Response.make(
+                    206,
+                    d,  
+                    {"Content-Length": str(len(d))}
+                )
+            
+            else:
+                logging.info("Could not determine skip, serving original file")
+        
+        elif flow.response.status_code == 200 and content_type == "audio/mpeg":
+            logging.info(flow.response)
+            logging.info("Audio file recieved, starting ad stripping...")
+            self.url = self.get_origin(flow.request.url)
             if not self.url:
                 self.url = flow.request.url
             
@@ -65,7 +91,7 @@ class AdStripper:
                 i += 1
                 
                 idx = data.find(chunk)
-                if idx != -1 and abs(idx-prev_idx) <= 100*self.delta :   
+                if idx != -1 and abs(idx-prev_idx) <= 100*self.delta:
                     d += chunk
                     data = data.replace(chunk, b"", 1)
                 prev_idx = idx
@@ -98,7 +124,6 @@ class AdStripper:
             if len(self.route) >= 5:
                 self.route = {}
                 self.stripped = {}
-            self.url = req_url
             self.route[req_url] = [found_url]
 
 addons = [AdStripper()]
