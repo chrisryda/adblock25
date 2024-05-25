@@ -4,6 +4,7 @@ import logging
 
 class AdStripper:
     def __init__(self):
+        self.tor_port = 9050
         self.session = self.get_tor_session()
         self.delta = 2**13
         self.url = ""
@@ -12,7 +13,7 @@ class AdStripper:
     
     def get_tor_session(self):
         session = requests.session()
-        session.proxies = {'http': 'socks5h://127.0.0.1:9050', 'https': 'socks5h://127.0.0.1:9050'}
+        session.proxies = {'http': f'socks5h://127.0.0.1:{self.tor_port}', 'https': f'socks5h://127.0.0.1:{self.tor_port}'}
         return session
     
     def response(self, flow: http.HTTPFlow) -> None:
@@ -51,7 +52,7 @@ class AdStripper:
         
         elif flow.response.status_code == 200 and content_type == "audio/mpeg":
             logging.info(flow.response)
-            logging.info("Audio file recieved, starting ad stripping...")
+            logging.info("Audio file recieved")
             self.url = self.get_origin(flow.request.url)
             if not self.url:
                 self.url = flow.request.url
@@ -61,6 +62,7 @@ class AdStripper:
                 logging.info("Found stripped file, sending response")
             
             else:
+                logging.info("Starting ad stripping...")
                 data = flow.response.content
                 d = self.strip_ads(data)
                 if not d:
@@ -80,21 +82,26 @@ class AdStripper:
         d = b""
         prev_idx = 0
         i = 0
-        with self.session.get(self.url, stream=True) as x:
-            try:
-                n = int(int(x.headers["Content-Length"]) / self.delta)
-            except KeyError:
-                n = "?"
-            
-            for chunk in x.iter_content(self.delta):
-                print(f"\rProgress: {i} / {n}", end="")
-                i += 1
+        try:
+            with self.session.get(self.url, stream=True) as x:
+                try:
+                    n = int(int(x.headers["Content-Length"]) / self.delta)
+                except KeyError:
+                    n = "?"
                 
-                idx = data.find(chunk)
-                if idx != -1 and abs(idx-prev_idx) <= 100*self.delta:
-                    d += chunk
-                    data = data.replace(chunk, b"", 1)
-                prev_idx = idx
+                for chunk in x.iter_content(self.delta):
+                    print(f"\rProgress: {i} / {n}", end="")
+                    i += 1
+                    
+                    idx = data.find(chunk)
+                    if idx != -1 and abs(idx-prev_idx) <= 100*self.delta:
+                        d += chunk
+                        data = data.replace(chunk, b"", 1)
+                    prev_idx = idx
+        
+        except requests.exceptions.ConnectionError:
+            logging.error(f"Cannot connect to the Tor SOCKS proxy. Make sure the Tor proxy is listening and the port number {self.tor_port} is correct.")
+        
         print()
         return d
     
