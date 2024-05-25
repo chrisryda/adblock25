@@ -78,6 +78,8 @@ If you want to use a different port, make sure to update `addon.py` and `write.p
 Add the country code of your local IP, to make sure Tor fetches audio files using a different IP-address than your local one.    
 
 <br />
+<br />
+<br />
 
 The location of the `torrc` file depends on how Tor is installed on your system.
 Below are two different options. 
@@ -90,6 +92,7 @@ With the `tor` package from the Arch user repository (AUR), the `torrc` file is 
 Add the following two lines to the `torrc` file:
 
 <br />
+
 ```
 SOCKSPort 0.0.0.0:9050
 ExcludeExitNodes {<cc>}
