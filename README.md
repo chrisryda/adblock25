@@ -65,7 +65,19 @@ You may need to restart Waydroid for the changes to take effect.
 <br />
 
 ### Tor proxy
-To open a Tor SOCKS proxy, you need to edit your `torrc` file.
+To open a Tor SOCKS proxy, you need to edit your `torrc` file and restart you Tor instance.
+Add the following two lines to the `torrc` file:
+```
+SOCKSPort 0.0.0.0:9050
+ExcludeExitNodes {<cc>}
+```
+
+If you want to use a different port, make sure to update `addon.py` and `write.py` accordingly.
+
+`cc` is a 2-letter `ISO3166 Alpha-2` country code.  
+Add the country code of your local IP, to make sure Tor fetches audio files using a different IP-address than your local one,    
+See [this](https://www.iso.org/obp/ui/#search/code/) list to find a country code. 
+
 The location of this file depends on how Tor is installed on your system.
 Below are two different options. 
 
