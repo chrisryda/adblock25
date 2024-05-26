@@ -17,23 +17,21 @@ class AdStripper:
         return session
     
     def request(self, flow: http.HTTPFlow) -> None:
-        if self.get_origin(flow.request.url):
-            origin = self.get_origin(flow.request.url)
-            
-            if origin in self.stripped.keys():
-                try:
-                    bs = int(flow.request.headers["Range"].split("=")[1][:-1])
-                    d = self.stripped[origin][bs:]
-                except KeyError:
-                    bs = None
-                    d = self.stripped[origin]
+        origin = self.get_origin(flow.request.url)
+        if origin and origin in self.stripped.keys():
+            try:
+                bs = int(flow.request.headers["Range"].split("=")[1][:-1])
+                d = self.stripped[origin][bs:]
+            except KeyError:
+                bs = None
+                d = self.stripped[origin]
 
-                status_code = 206 if bs else 200
-                flow.response = http.Response.make(
-                    status_code,
-                    d,  
-                    {"Content-Length": str(len(d))}
-                )
+            status_code = 206 if bs else 200
+            flow.response = http.Response.make(
+                status_code,
+                d,  
+                {"Content-Length": str(len(d))}
+            )
                 
 
     def response(self, flow: http.HTTPFlow) -> None:
@@ -41,12 +39,15 @@ class AdStripper:
             self.update_route(flow.request.url, flow.response.headers["location"])
             return
         
+        if "no content" in str(flow.response).lower():
+            return
+        
         try:
             content_type = flow.response.headers["Content-Type"]
         except KeyError:
             return
         
-        if flow.response.status_code == 206 and content_type == "audio/mpeg":
+        if flow.response.status_code == 206 and "audio" in content_type:
             try:
                 bs = int(flow.request.headers["range"].split("=")[1][:-1])
             except KeyError:
@@ -70,7 +71,7 @@ class AdStripper:
             else:
                 logging.info("Could not determine skip, serving original file")
         
-        elif flow.response.status_code == 200 and content_type == "audio/mpeg":
+        elif flow.response.status_code == 200 and "audio" in content_type:
             logging.info(flow.response)
             logging.info("Audio file recieved")
             self.url = self.get_origin(flow.request.url)

@@ -20,6 +20,23 @@ class AdStripper:
         session.proxies = {'http': f'socks5h://127.0.0.1:{self.tor_port}', 'https': f'socks5h://127.0.0.1:{self.tor_port}'}
         return session
     
+    def request(self, flow: http.HTTPFlow) -> None:
+        origin = self.get_origin(flow.request.url)
+        if origin and origin in self.stripped.keys():
+            try:
+                bs = int(flow.request.headers["Range"].split("=")[1][:-1])
+                d = self.stripped[origin][bs:]
+            except KeyError:
+                bs = None
+                d = self.stripped[origin]
+
+            status_code = 206 if bs else 200
+            flow.response = http.Response.make(
+                status_code,
+                d,  
+                {"Content-Length": str(len(d))}
+            )
+    
     def response(self, flow: http.HTTPFlow) -> None:
         if flow.response.status_code == 302:
             self.update_route(flow.request.url, flow.response.headers["location"])
@@ -30,7 +47,10 @@ class AdStripper:
         except KeyError:
             return
         
-        if flow.response.status_code == 206 and content_type == "audio/mpeg":
+        if "no content" in str(flow.response).lower():
+            return
+        
+        if flow.response.status_code == 206 and "audio" in content_type:
             try:
                 bs = int(flow.request.headers["range"].split("=")[1][:-1])
             except KeyError:
@@ -54,7 +74,7 @@ class AdStripper:
             else:
                 logging.info("Could not determine skip, serving original file")
         
-        elif flow.response.status_code == 200 and content_type == "audio/mpeg": 
+        elif flow.response.status_code == 200 and "audio" in content_type: 
             logging.info(flow.response)
             logging.info("Audio file recieved")
             self.url = self.get_origin(flow.request.url)
@@ -113,14 +133,10 @@ class AdStripper:
         print()
         return d
     
-    def route_contains(self, req_url: str) -> bool:
-        for lst in self.route.values():
-            if req_url in lst:
-                return True
-        return False
-    
     def get_origin(self, url: str) -> str | None:
         for origin, lst in self.route.items():
+            if url == origin:
+                return origin
             if url in lst:
                 return origin
         return None
@@ -130,7 +146,7 @@ class AdStripper:
             if found_url not in self.route[req_url]:
                 self.route[req_url].append(found_url)
         
-        elif self.route_contains(req_url):
+        elif self.get_origin(req_url):
             origin = self.get_origin(req_url)
             if found_url not in self.route[origin]:
                 self.route[origin].append(found_url)
