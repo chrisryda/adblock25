@@ -29,8 +29,9 @@ class AdStripper:
             except KeyError:
                 bs = None
                 d = self.stripped[origin]
-
+            
             status_code = 206 if bs else 200
+            logging.info("Found stripped file, sending response")
             flow.response = http.Response.make(
                 status_code,
                 d,  
