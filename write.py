@@ -120,7 +120,7 @@ class AdStripper:
                     i += 1
                     
                     idx = data.find(chunk)
-                    if idx != -1 and abs(idx-prev_idx) <= 100*self.delta:   
+                    if idx != -1 and abs(idx-prev_idx) <= 500*self.delta:   
                         d += chunk
                         data = data.replace(chunk, b"", 1)
                         prev_idx = idx
