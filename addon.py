@@ -118,8 +118,8 @@ class AdStripper:
                     idx = data.find(chunk)
                     if idx != -1 and abs(idx-prev_idx) <= 100*self.delta:
                         d += chunk
+                        prev_idx = idx
                         data = data.replace(chunk, b"", 1)
-                    prev_idx = idx
         
         except requests.exceptions.ConnectionError:
             logging.error(f"Cannot connect to the Tor SOCKS proxy. Make sure the Tor proxy is listening and the port number {self.tor_port} is correct.")
