@@ -94,8 +94,8 @@ class AdStripper:
                     logging.error("Something went wrong, and the ads could not be removed. Serving original file.")
                     return
                 
-                with open("./with.csv", "a") as out:
-                    out.write(f"{self.delta},{tor_length},{(end-start)}\n")
+                with open("./fs-2**14.times.csv", "a") as out:
+                    out.write(f"{tor_length},{(end-start)}\n")
                     
                 
                 self.stripped[self.url] = d

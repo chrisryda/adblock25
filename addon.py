@@ -94,6 +94,8 @@ class AdStripper:
                 self.stripped[self.url] = d
                 logging.info("Ads stripped, sending response")
             
+            with open(f"./xx.mp3", "wb") as out:
+                out.write(flow.response.content[:(500 * self.delta)])
             flow.response = http.Response.make(
                 200,
                 d,  
@@ -116,7 +118,7 @@ class AdStripper:
                     i += 1
                     
                     idx = data.find(chunk)
-                    if idx != -1 and abs(idx-prev_idx) <= 100*self.delta:
+                    if idx != -1 and abs(idx-prev_idx) <= 500*self.delta:
                         d += chunk
                         data = data.replace(chunk, b"", 1)
                     prev_idx = idx
